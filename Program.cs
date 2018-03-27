@@ -124,7 +124,6 @@ namespace csvscan
             Console.WriteLine("");
             Console.WriteLine("operations: ");
             Console.WriteLine("\t -r \t Read");
-            Console.WriteLine("\t -w \t Write");
             Console.WriteLine("");
 
             Console.WriteLine("options: ");
@@ -132,9 +131,9 @@ namespace csvscan
             Console.WriteLine("");
             Console.WriteLine("\t Source Folder: One or more source files in csv format.");
             Console.WriteLine("\t Filters File: Text file with one column filter per line.");
-            Console.WriteLine("\t\tFormat: {Column Position Index}={Value-1},{Value-2},..");
-            Console.WriteLine("\t\tE.g.: 10=1234,5678");
-            Console.WriteLine("\t\tE.g.: 11=hello,world,qwerty");
+            Console.WriteLine("\t\tformat: {Column Position Index}={Value-1},{Value-2},..");
+            Console.WriteLine("\t\te.g.: 10=1234,5678");
+            Console.WriteLine("\t\te.g.: 11=hello,world,qwerty");
             Console.WriteLine("\t Output Folder: Filtered results folder");
             Console.WriteLine("");
 
