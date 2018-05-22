@@ -15,9 +15,12 @@ options:
   -r "Source Folder" "Filter File" "Output Folder"
   
 Source Folder: One or more source files in csv format
+
 Filters File: Text file with one column filter per line
-    format: {Column Position Index}={Value-1},{Value-2},..
-    e.g.: 10=1234,5678
-    e.g.: 11=hello,world,qwerty
+    Filter format: {Column Index}={Value-1},{Value-2},..
+    e.g. Text Filter: 11=12345,hello,world
+    e.g. Starts-With: 11=*2345,*ello
+    e.g. Ends-With: 11=1234*,hell*
+    e.g. Contains: 11=*234*,*ell*
+    
 Output Folder: Filtered results folder
-  
