@@ -96,8 +96,8 @@ namespace csvscan
                         { outputPath = Console.ReadLine(); }
                         #endregion
                         Console.WriteLine("");
-                        Scan scn = new Scan(verbose, sourcePath);
-                        scn.FilterFolder(filterPath, outputPath);
+                        Search scn = new Search(verbose, sourcePath);
+                        scn.ScanFolder(filterPath, outputPath);
                         Console.WriteLine("");
                         break;
                     default:
@@ -116,7 +116,9 @@ namespace csvscan
             }
         }
 
-
+        /// <summary>
+        /// Program Command Arguments readme
+        /// </summary>
         static void Help()
         {
             Console.WriteLine("");
@@ -126,7 +128,7 @@ namespace csvscan
             Console.WriteLine("\t -v \t Verbose");
             Console.WriteLine("\t -s \t Silent");
             Console.WriteLine("");
-            Console.WriteLine("operations: ");
+            Console.WriteLine("operation: ");
             Console.WriteLine("\t -r \t Read");
             Console.WriteLine("");
 
@@ -134,13 +136,15 @@ namespace csvscan
             Console.WriteLine("\t -r \"Source Folder\" \"Filter File\" \"Output Folder\"");
             Console.WriteLine("");
             Console.WriteLine("\t Source Folder: One or more source files in csv format.");
+            Console.WriteLine("");
             Console.WriteLine("\t Filters File: Text file with one column filter per line.");
-            Console.WriteLine("\t\tformat: {Column Position Index}={Value-1},{Value-2},..");
-            Console.WriteLine("\t\te.g.: 10=1234,5678");
-            Console.WriteLine("\t\te.g.: 11=hello,world,qwerty");
-            Console.WriteLine("\t\te.g.: 11=*ello {For Starts With}");
-            Console.WriteLine("\t\te.g.: 11=worl* {For Ends With}");
-            Console.WriteLine("\t\te.g.: 11=*wert* {For Contains anywhere}");
+            Console.WriteLine("");
+            Console.WriteLine("\t\tFilter format: {Column Index}={Value-1},{Value-2},..");
+            Console.WriteLine("\t\te.g. Text Filter: 11=12345,hello,world,qwerty");
+            Console.WriteLine("\t\te.g. Starts-With: 11=1234*,hell*");
+            Console.WriteLine("\t\te.g. Ends-With: 11=*2345,*orld");
+            Console.WriteLine("\t\te.g. Contains: 11=*234*,*wert*");
+            Console.WriteLine("");
             Console.WriteLine("\t Output Folder: Filtered results folder");
             Console.WriteLine("");
 
