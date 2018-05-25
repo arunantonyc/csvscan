@@ -81,14 +81,28 @@ namespace csvscan
 
             // source files
             DateTime stTime = DateTime.Now;
+            StreamWriter wtr = null;
             try
             {
+                // output file                
+                bool writeCsvHeader = !File.Exists(outputPath);
+                
+                CsvWriter csvWtr = null;
+                if (!string.IsNullOrEmpty(outputPath))
+                {
+                    wtr = new StreamWriter(outputPath, true);
+                    csvWtr = new CsvWriter(wtr);
+                    csvWtr.Configuration.HasHeaderRecord = false;
+                }
+
+                StringComparer strComparer = new StringComparer();
+
                 // scan src files
                 string[] sourceFiles = Directory.GetFiles(_srcPath);
                 _scanCtr = 0;
                 for (int i = 0; i < sourceFiles.Length; i++)
                 {
-                    var foundCtr = Filter(sourceFiles[i], filters, outputPath, out int readCtr);
+                    var foundCtr = Filter(sourceFiles[i], filters, csvWtr, out int readCtr, strComparer);
                     _resultsCtr += foundCtr;
                     _scanCtr += readCtr;
                 }
@@ -96,6 +110,12 @@ namespace csvscan
             catch { throw new Exception("Scan failed"); }
             finally
             {
+                // close output file
+                if (wtr != null)
+                {
+                    wtr.Close();
+                    //wtr.Dispose();
+                }
                 TimeSpan ts = DateTime.Now - stTime;
                 Console.WriteLine("");
                 Console.WriteLine("Scan Time: {0}, Found: {1}/{2}, Output: {3} ", ts.TotalSeconds, _resultsCtr, _scanCtr, outputPath.PadLeft(20, '.'));
@@ -103,20 +123,20 @@ namespace csvscan
             }
         }
 
-        public int Filter(string srcFile, Dictionary<int, string> filters, string outputFile, out int readCtr)
+        /// <summary>
+        /// Scans source file to output filtered records
+        /// </summary>
+        /// <param name="srcFile">CSV Source file</param>
+        /// <param name="filters">List of column filters</param>
+        /// <param name="outputFile">Filtered output file</param>
+        /// <param name="readCtr">Total records read from source file</param>
+        /// <returns>Number of records found matching the filters</returns>
+        public int Filter(string srcFile, Dictionary<int, string> filters, CsvWriter csvWtr, out int readCtr, StringComparer strComparer)
         {
             readCtr = 0;
-            int resultsCtr = 0;
-            StreamWriter wtr = null;
+            int resultsCtr = 0;            
             try
             {
-                bool writeCsvHeader = !File.Exists(outputFile);
-                // open output file
-                CsvWriter csvWtr = null;
-                wtr = new StreamWriter(outputFile, true);
-                csvWtr = new CsvWriter(wtr);
-                csvWtr.Configuration.HasHeaderRecord = false;
-
                 // search source file
                 using (StreamReader rdr = new StreamReader(srcFile))
                 {
@@ -130,36 +150,20 @@ namespace csvscan
                         readCtr++;
                         try
                         {
-                            bool checksPassed = true;
-                            foreach (int fieldIdx in filters.Keys)
+                            if (RecordCheck(filters, csvRdr, strComparer))
                             {
-                                var field = csvRdr.GetField<string>(fieldIdx).Trim();
-                                if (!string.IsNullOrEmpty(field))
-                                {
-                                    List<string> vals = filters[fieldIdx].Trim().Split(',').ToList();
-                                    if (!vals.Contains(field))
-                                    {
-                                        checksPassed = false;
-                                        continue;
-                                    }
-                                }
-                                else { checksPassed = false; continue; }
-                            }
-                            if (checksPassed)
-                            {
-                                var record = csvRdr.GetRecord<dynamic>();
+                                resultsCtr++;
                                 if (csvWtr != null)
                                 {
+                                    var record = csvRdr.GetRecord<dynamic>();
                                     csvWtr.WriteRecord(record);
                                     csvWtr.NextRecord();
                                 }
-                                resultsCtr++;
                             }
-
                         }
                         catch { }
                     }
-                }
+                }   
                 return resultsCtr;
             }
             catch
@@ -167,13 +171,7 @@ namespace csvscan
                 return resultsCtr;
             }
             finally
-            {
-                // close output file
-                if (wtr != null)
-                {
-                    wtr.Close();
-                    //wtr.Dispose();
-                }
+            {                
                 if (_verbose)
                 {
                     var fileName = "/" + Path.GetFileName(srcFile);
@@ -181,5 +179,32 @@ namespace csvscan
                 }
             }
         }
+
+        public bool RecordCheck(Dictionary<int, string> filters, CsvReader record, StringComparer strComparer)
+        {
+            bool checksPassed = true;
+            try
+            {
+                foreach (int fieldIdx in filters.Keys)
+                {
+                    var field = record.GetField<string>(fieldIdx).Trim();
+                    if (string.IsNullOrEmpty(field)) { checksPassed = false; continue; }
+                    
+                    List<string> vals = filters[fieldIdx].Trim().Split(',').ToList();
+                    if (!vals.Contains(field, strComparer))
+                    {
+                        checksPassed = false;
+                        continue;
+                    }
+                }
+                return checksPassed;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
+
+    
 }

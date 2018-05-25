@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace csvscan
 {
@@ -9,7 +10,10 @@ namespace csvscan
             bool verbose = false;
             try
             {
-                Console.WriteLine("CSV Scan v0.2");                
+                var assm = Assembly.GetExecutingAssembly();
+                var version = assm.GetName().Version;
+                Console.WriteLine("CSV Scan v{0}.{1}", version.Major, version.Minor);
+                   
                 if (args.Length > 0)
                 {
                     switch (args[0].ToLower().Trim())
@@ -60,7 +64,7 @@ namespace csvscan
                             }
                         }
                         #region Read
-                        Console.WriteLine("Operation - Read");
+                        Console.WriteLine("Operation: Read");
                         Console.Write("Source File/Path: ");
                         string sourcePath;
                         if (args.Length > 2)
@@ -105,11 +109,11 @@ namespace csvscan
             {
                 Console.WriteLine("Error occured - {0}", ex.Message);
             }
-            //if (verbose)
-            //{
-            //    Console.WriteLine("Press any key to close.");
-            //    Console.ReadLine();
-            //}
+            if (verbose)
+            {
+                Console.WriteLine("Press any key to close.");
+                Console.ReadLine();
+            }
         }
 
 
@@ -134,6 +138,9 @@ namespace csvscan
             Console.WriteLine("\t\tformat: {Column Position Index}={Value-1},{Value-2},..");
             Console.WriteLine("\t\te.g.: 10=1234,5678");
             Console.WriteLine("\t\te.g.: 11=hello,world,qwerty");
+            Console.WriteLine("\t\te.g.: 11=*ello {For Starts With}");
+            Console.WriteLine("\t\te.g.: 11=worl* {For Ends With}");
+            Console.WriteLine("\t\te.g.: 11=*wert* {For Contains anywhere}");
             Console.WriteLine("\t Output Folder: Filtered results folder");
             Console.WriteLine("");
 
